@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     public float meleeDamage = 0.5f; // 2 lovituri inamic normal, 6 tancul
     public float meleeRadius = 2.5f; // Raza atacului în jurul jucătorului
     public LayerMask enemyLayer;    // Setează pe "Enemy" în Inspector
+    public GameObject meleeVFXPrefab;
 
     [Header("--- Power-ups ---")]
     public float baseDamage = 1f; // Schimbat în float pentru consistență
@@ -44,6 +45,7 @@ public class PlayerController : MonoBehaviour
     {
         baseMoveSpeed = moveSpeed;
         currentDamage = baseDamage;
+        RefreshUI(); 
     }
 
     void Update()
@@ -62,11 +64,19 @@ public class PlayerController : MonoBehaviour
         {
             currentWeapon = WeaponType.Rifle;
             Debug.Log("Arma: Pusca");
+            RefreshUI();
         }
         if (Input.GetKeyDown(KeyCode.E) && shotgunAmmo > 0)
         {
             currentWeapon = WeaponType.Shotgun;
             Debug.Log("Arma: Shotgun");
+            RefreshUI();
+        }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            currentWeapon = WeaponType.Melee;
+            Debug.Log("Arma: Sabie (Selectată manual)");
+            RefreshUI();
         }
 
         // Verificare automată: dacă ambele sunt 0, trecem pe Melee
@@ -74,6 +84,7 @@ public class PlayerController : MonoBehaviour
         {
             currentWeapon = WeaponType.Melee;
             Debug.Log("⚠️ MUNIIE TERMINATĂ! Mod Melee activat (Sabie).");
+            RefreshUI();
         }
 
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
@@ -91,11 +102,14 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        rb.velocity = new Vector3(movement.x * moveSpeed, rb.velocity.y, movement.z * moveSpeed);
 
         Vector3 lookDir = mousePos - rb.position;
         lookDir.y = 0; 
-        transform.rotation = Quaternion.LookRotation(lookDir);
+        if (lookDir.sqrMagnitude > 0.1f) 
+        {
+            transform.rotation = Quaternion.LookRotation(lookDir);
+        }
     }
 
     void Shoot()
@@ -125,6 +139,8 @@ public class PlayerController : MonoBehaviour
             shotgunAmmo--; // Consumă un cartuș de shotgun
             nextFireTime = Time.time + shotgunFireRate;
         }
+
+        RefreshUI();
     }
 
     void MeleeAttack()
@@ -132,7 +148,12 @@ public class PlayerController : MonoBehaviour
         Debug.Log("⚔️ Atac cu sabia!");
         nextFireTime = Time.time + meleeAttackRate;
 
-        // Detectăm toți inamicii din jurul nostru într-o sferă
+        if (meleeVFXPrefab != null)
+        {
+            GameObject vfx = Instantiate(meleeVFXPrefab, firePoint.position, firePoint.rotation);
+            Destroy(vfx, 0.3f); // Ștergem efectul după 0.3 secunde (cât durează tăietura)
+        }
+
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position, meleeRadius, enemyLayer);
 
         foreach (Collider enemy in hitEnemies)
@@ -157,6 +178,7 @@ public class PlayerController : MonoBehaviour
             currentWeapon = rifleAmount > 0 ? WeaponType.Rifle : WeaponType.Shotgun;
         }
         Debug.Log("Muniție adăugată! Rifle: " + rifleAmmo + " | Shotgun: " + shotgunAmmo);
+        RefreshUI();
     }
 
     public IEnumerator TriggerSpeedBoost(float multiplier, float duration)
@@ -178,5 +200,13 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, meleeRadius);
+    }
+
+     private void RefreshUI()
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateWeaponUI(currentWeapon, rifleAmmo, shotgunAmmo);
+        }
     }
 }

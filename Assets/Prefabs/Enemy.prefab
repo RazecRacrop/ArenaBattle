@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2828385074545547949}
   - component: {fileID: 3793471883772004215}
   - component: {fileID: 3116199529559253502}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -161,8 +161,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd8c3f74986211547a493e19310d7cc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1
-  lootDrop: {fileID: 6448223998225095663, guid: bbe2cc0cc03a77046affc6401d0fa0f3, type: 3}
+  health: 1
+  lootTable:
+  - {fileID: 6448223998225095663, guid: bbe2cc0cc03a77046affc6401d0fa0f3, type: 3}
+  - {fileID: 1017583017547510715, guid: 524867ad9de72d44cbb91e764388bf21, type: 3}
+  - {fileID: 1719173515040530420, guid: 775b52644db6bfc4c983f242fb9bf954, type: 3}
+  - {fileID: 1194140833095855257, guid: f561366ba4eee4446a0e730eb39a4fa8, type: 3}
   dropChance: 10
 --- !u!195 &3116199529559253502
 NavMeshAgent:

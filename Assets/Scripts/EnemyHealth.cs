@@ -2,23 +2,13 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public float maxHealth = 2f; 
-    private float currentHealth;
+    public float health = 1f;
 
-    public GameObject lootDrop; 
-    [Range(0, 100)] public int dropChance = 30; 
-
-    void Start()
-    {
-        currentHealth = maxHealth;
-    }
 
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
-        // Debug.Log("Enemy HP: " + currentHealth);
-
-        if (currentHealth <= 0)
+        health -= damage;
+        if (health <= 0)
         {
             Die();
         }
@@ -27,18 +17,21 @@ public class EnemyHealth : MonoBehaviour
     void Die()
     {
         GameManager gm = FindObjectOfType<GameManager>();
-        if (gm != null) gm.AddScore(1);
-
-        TryDropLoot();
-
-        Destroy(gameObject);
-    }
-
-    void TryDropLoot()
-    {
-        if (lootDrop != null && Random.Range(0, 100) < dropChance)
+        if (gm != null) 
         {
-            Instantiate(lootDrop, transform.position, Quaternion.identity);
+            // Cerem Directorului să decidă dacă ne dă loot sau nu
+            gm.RollForLoot(transform.position);
+
+            // Scorul
+            if (gameObject.name.Contains("Tank")) gm.AddScore(3);
+            else if (gameObject.name.Contains("Boss")) 
+            {
+                gm.AddScore(50);
+                gm.BossDefeated(); 
+            }
+            else gm.AddScore(1); 
         }
+        
+        Destroy(gameObject);
     }
 }

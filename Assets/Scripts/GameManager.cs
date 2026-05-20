@@ -34,7 +34,16 @@ public class GameManager : MonoBehaviour
     public int totalShotsFired = 0;
     public int totalShotsHit = 0;
 
-    // Funcție pe care o va citi ML-Agents mai târziu
+      [Header("--- Setări Director AI ---")]
+    public int currentPacing = 1; // 0=Relax, 1=Normal, 2=Tension
+    public int currentLootState = 1; // 0=Angel, 1=Normal, 2=Demon
+    public bool isFlushingOut = false;
+
+    [Header("--- Sistem Central de Loot ---")]
+    public GameObject[] lootTable; 
+    public GameObject healthPrefab; 
+
+    
     public float GetPlayerAccuracy()
     {
         if (totalShotsFired == 0) return 0f;
@@ -62,26 +71,83 @@ public class GameManager : MonoBehaviour
         }
     }
 
+     public void UpdateDirectorStates(int pacing, int loot, int camp)
+    {
+        currentPacing = pacing;
+        currentLootState = loot;
+        isFlushingOut = (camp == 1);
+
+        if (currentPacing == 0) spawnInterval = 4.0f;
+        else if (currentPacing == 1) spawnInterval = 2.0f;
+        else if (currentPacing == 2) spawnInterval = 0.8f;
+    }
+
+
     IEnumerator SpawnEnemyRoutine()
     {
         Vector3 spawnPos = new Vector3(Random.Range(-xLimit, xLimit), 0.05f, Random.Range(-zLimit, zLimit));
-        GameObject warning = Instantiate(warningPrefab, spawnPos, Quaternion.identity);
+        
+        // ANTI-CAMPING: Dacă jucătorul campează, spawnăm inamicul FOARTE aproape de el
+        if (isFlushingOut)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                // Spawnăm la 5 unități în spatele/lângă jucător
+                spawnPos = player.transform.position + new Vector3(Random.Range(-5f, 5f), 0, Random.Range(-5f, 5f));
+            }
+        }
 
+        GameObject warning = Instantiate(warningPrefab, spawnPos, Quaternion.identity);
         yield return new WaitForSeconds(warningTime);
 
-        // Mai facem o verificare în caz că Boss-ul a apărut cât timp dura avertismentul
         if (isGameActive && !bossSpawned)
         {
             Destroy(warning); 
             
-            // AI-ul alege: 80% șanse inamic normal, 20% șanse Tanc
-            GameObject prefabToSpawn = (Random.value > 0.2f) ? normalEnemyPrefab : tankEnemyPrefab;
+            GameObject prefabToSpawn = normalEnemyPrefab;
+
+            if (currentPacing == 0) 
+            {
+                prefabToSpawn = normalEnemyPrefab; 
+            }
+            else if (currentPacing == 1) 
+            {
+                prefabToSpawn = (Random.value > 0.2f) ? normalEnemyPrefab : tankEnemyPrefab; // Normal
+            }
+            else if (currentPacing == 2) 
+            {
+                prefabToSpawn = (Random.value > 0.5f) ? normalEnemyPrefab : tankEnemyPrefab; // Tensiune: 50% șanse de Tanc!
+            }
             
             Instantiate(prefabToSpawn, spawnPos, Quaternion.identity); 
         }
-        else
+        else Destroy(warning);
+    }
+
+
+    public void RollForLoot(Vector3 dropPosition)
+    {
+        if (lootTable == null || lootTable.Length == 0) return;
+
+        if (currentLootState == 0) // ÎNGER (Jucătorul moare)
         {
-            Destroy(warning);
+            if (Random.value < 0.8f) // 80% șanse să pice ceva
+            {
+                // Forțăm să pice VIAȚĂ dacă o avem setată
+                if (healthPrefab != null) Instantiate(healthPrefab, dropPosition, Quaternion.identity);
+                else Instantiate(lootTable[Random.Range(0, lootTable.Length)], dropPosition, Quaternion.identity);
+            }
+        }
+        else if (currentLootState == 1) // NORMAL
+        {
+            if (Random.value < 0.3f) // 30% șanse
+                Instantiate(lootTable[Random.Range(0, lootTable.Length)], dropPosition, Quaternion.identity);
+        }
+        else if (currentLootState == 2) // DEMON (Jucătorul joacă prea bine)
+        {
+            if (Random.value < 0.05f) // Doar 5% șanse! Foarte zgârcit.
+                Instantiate(lootTable[Random.Range(0, lootTable.Length)], dropPosition, Quaternion.identity);
         }
     }
 
@@ -103,11 +169,22 @@ public class GameManager : MonoBehaviour
         bossSpawned = true;
         Debug.Log("👹 !!! BOSS FIGHT !!! 👹");
         
-        // Spawnăm Boss-ul fix în centrul hărții
-        Vector3 centerPos = new Vector3(0, 0.5f, 0);
         if(bossPrefab != null) 
         {
-            Instantiate(bossPrefab, centerPos, Quaternion.identity);
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            Vector3 spawnPos = new Vector3(0, 0.5f, 0); 
+
+            if (player != null)
+            {
+                
+                spawnPos = player.transform.position + new Vector3(12f, 0f, 12f);
+            }
+
+            Instantiate(bossPrefab, spawnPos, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogError("🚨 EROARE: Nu ai pus BossPrefab în GameManager!");
         }
     }
 
@@ -133,5 +210,13 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void BossDefeated()
+    {
+        Debug.Log("🏆 Boss-ul a fost învins! Reluăm spawn-ul.");
+        bossSpawned = false; 
+        
+        scoreRequiredForBoss += 150; 
     }
 }

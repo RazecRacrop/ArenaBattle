@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2828385074545547949}
   - component: {fileID: 3793471883772004215}
   - component: {fileID: 3116199529559253502}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Boss
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5, y: 3, z: 5}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 62164d1da09a6e942ba4d49e32eec5c1, type: 2}
+  - {fileID: 2100000, guid: 31dccaa6b2566a94883e9e269e7e7e85, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -134,7 +134,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 84
   m_CollisionDetection: 0
 --- !u!114 &2828385074545547949
 MonoBehaviour:
@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 20
+  attackCooldown: 1.5
 --- !u!114 &3793471883772004215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,9 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd8c3f74986211547a493e19310d7cc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 35
-  lootDrop: {fileID: 6448223998225095663, guid: bbe2cc0cc03a77046affc6401d0fa0f3, type: 3}
-  dropChance: 10
+  health: 30
 --- !u!195 &3116199529559253502
 NavMeshAgent:
   m_ObjectHideFlags: 0

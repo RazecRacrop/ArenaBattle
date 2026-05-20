@@ -5,6 +5,8 @@ public class EnemyAI : MonoBehaviour
 {
     // Nu mai avem nevoie de 'speed' aici, viteza se seteaza acum din Inspector de la NavMeshAgent
     public int damage = 10; 
+    public float attackCooldown = 1.5f;
+    private float lastAttackTime = 0f;
     
     private Transform player;
     private NavMeshAgent agent; // Am adaugat "soferul" inamicului
@@ -32,18 +34,28 @@ public class EnemyAI : MonoBehaviour
     }
 
     // Partea ta de coliziune a ramas EXACT la fel! Face damage si moare.
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            PlayerHealth health = collision.gameObject.GetComponent<PlayerHealth>();
-            
-            if (health != null)
+            // Verificăm dacă a trecut 1 secundă de la ultimul atac
+            if (Time.time >= lastAttackTime + attackCooldown)
             {
-                health.TakeDamage(damage); 
-            }
+                PlayerHealth health = collision.gameObject.GetComponent<PlayerHealth>();
+                
+                if (health != null)
+                {
+                    health.TakeDamage(damage); 
+                }
 
-            Destroy(gameObject);
+                lastAttackTime = Time.time; // Resetăm timer-ul de atac
+
+                
+                if (!gameObject.name.Contains("Tank") && !gameObject.name.Contains("Boss"))
+                {
+                    Destroy(gameObject);
+                }
+            }
         }
     }
 }

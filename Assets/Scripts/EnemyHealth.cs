@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int maxHealth = 2; 
-    private int currentHealth;
+    public float maxHealth = 2f; 
+    private float currentHealth;
 
     public GameObject lootDrop; 
     [Range(0, 100)] public int dropChance = 30; 
@@ -13,7 +13,7 @@ public class EnemyHealth : MonoBehaviour
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         currentHealth -= damage;
         // Debug.Log("Enemy HP: " + currentHealth);

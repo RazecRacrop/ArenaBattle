@@ -1,3 +1,32 @@
-Ideei de viitor:
+# 🎮 AI-Driven Dynamic Difficulty Adjustment (DDA) in a Top-Down Shooter
 
-->implemntare partea melle a jocului
+Acest repository conține proiectul practic pentru lucrarea de licență, reprezentând un joc video de tip Top-Down Shooter dezvoltat în Unity. Scopul principal al proiectului este implementarea și testarea unui sistem inteligent de ajustare a dificultății (DDA) folosind Machine Learning.
+
+## 🧠 Conceptul de AI "Director"
+În loc să folosească o dificultate statică (Ușor, Mediu, Greu) sau scripturi previzibile de tip *if/else*, jocul integrează un agent de tip **Reinforcement Learning**. Acest agent acționează ca un "Regizor" (AI Director) invizibil care monitorizează în timp real telemetria jucătorului:
+* Nivelul de viață (HP)
+* Acuratețea tragerii (Hit/Miss Ratio)
+* Frecvența acțiunilor (APM - Actions Per Minute)
+
+Pe baza acestor date, Regizorul AI ajustează dinamic rata de spawn a inamicilor și compoziția valurilor de atac pentru a menține jucătorul într-o stare de tensiune optimă (evitând plictiseala sau frustrarea extremă).
+
+## 🛠️ Tehnologii Utilizate
+* **Motor Grafic:** Unity 3D (C#)
+* **AI & Pathfinding:** Unity NavMesh
+* **Machine Learning:** Unity ML-Agents Toolkit, Python, PyTorch (Algoritmul PPO)
+* **Design Pattern:** Component-Based Architecture
+
+## ✨ Funcționalități Curente (Core Gameplay)
+- [x] **Sistem de Locomoție:** Deplasare fluidă cu orientare dinamică a jucătorului.
+- [x] **Mecanici de Luptă:** Arsenal diversificat (Assault Rifle, Shotgun) cu balistică distinctă.
+- [x] **Inteligență Spațială (Inamici):** Navigare inteligentă și evitarea obstacolelor prin sistemul NavMesh.
+- [x] **Sistem de Resurse:** Gestionarea vieții și drop-uri strategice (Health Packs).
+
+## 🚀 Plan de Dezvoltare (Următorii Pași)
+- [ ] Integrarea metricilor avansate de telemetrie (Accuracy, APM tracker).
+- [ ] Conectarea pipeline-ului ML-Agents (`DirectorAgent.cs`).
+- [ ] Antrenarea modelului RL în medii paralele simulate.
+- [ ] Rafinarea vizuală (Particule, Post-Processing, UI avansat).
+
+---
+*Proiect dezvoltat pentru teza de licență.*

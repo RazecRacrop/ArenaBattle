@@ -35,6 +35,25 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    // --- FUNCȚIE NOUĂ ADĂUGATĂ PENTRU DEMO ---
+    public void Heal(int amount)
+    {
+        currentHealth += amount;
+        
+        // Nu lăsăm viața să treacă de maximul permis (100)
+        if (currentHealth > maxHealth) 
+        {
+            currentHealth = maxHealth;
+        }
+
+        if (healthSlider != null)
+        {
+            healthSlider.value = currentHealth;
+        }
+
+        Debug.Log("Jucător vindecat! HP Curent: " + currentHealth);
+    }
+
     void Die()
     {
         Debug.Log("Jucator Mort");
